@@ -15,4 +15,4 @@ def buzz(gpio_buzzer=7):
         sleep(0.5)
 
 if __name__ == "__main__":
-    main()
+    buzz()

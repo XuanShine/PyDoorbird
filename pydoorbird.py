@@ -22,7 +22,7 @@ password = info["password"]
 del info
 
 # TODO THREAD
-stream_doorbell = req.get(f"http://{id_device}/bha-api/monitor.cgi?ring=doorbell", auth=(user, password), stream=True)
+stream_doorbell = req.get(f"http://{ip_device}/bha-api/monitor.cgi?ring=doorbell", auth=(user, password), stream=True)
 del user
 del password
 
@@ -34,7 +34,7 @@ def watch():
                 buzzer.buzz()
 
 def main():
-    watch_entree = Tread(target=watch)
+    watch_entree = Thread(target=watch)
     watch_entree.start()
 
 if __name__ == "__main__":
