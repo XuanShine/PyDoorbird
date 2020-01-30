@@ -26,7 +26,7 @@ def init():
         stream_doorbell = req.get(f"http://{ip_device}/bha-api/monitor.cgi?ring=doorbell", auth=(user, password), stream=True)
     except Exception:
         import traceback
-		logging.error(f"ERROR connection au stream échouée; ip_device: {ip_device}:\n{traceback.format_exc()}")
+		logging.error(f"ERROR connection au stream échouée; vérifier ip doorbird: {ip_device}:\n{traceback.format_exc()}")
         return -1
     del user
     del password
