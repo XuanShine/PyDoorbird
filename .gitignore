@@ -1,0 +1,8 @@
+*.log
+/.pytest_cache
+/.vscode
+/__pycache__
+/venv
+*.pyc
+__pycache__/
+__pycache__/price.cpython-37.pyc
