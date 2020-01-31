@@ -33,7 +33,7 @@ def init():
     return stream_doorbell
 
 def watch(stream):
-    for elt in stream_doorbell.iter_lines():
+    for elt in stream.iter_lines():
         if elt:
             if "doorbell:H" in elt.decode("utf-8"):
                 logging.info("Doorbird entrée sonné.")
