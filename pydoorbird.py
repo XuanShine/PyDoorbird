@@ -26,6 +26,7 @@ def connection(user, password, number_try=1):
     except exceptions.ConnectionError as e:  # Pas de connection ou IP erronée
         time_wait = 2 ** number_try
         if time_wait > 3600:
+            # IMPROVE: check if there is a connection available, and scan the network
             logging.error(f"ERROR {number_try} try connection au stream échouée; Arrêt de tentative de reconnexion. Vérifier la connection et l’ip doorbird: {ip_device}")
             raise ConnectionError("")
         import traceback
