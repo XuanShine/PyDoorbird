@@ -51,6 +51,7 @@ def main():
             try_connection += 1
             logging.warning(f"Tentative de reconnection dans {try_connection * 10} secondes...")
             time.sleep(10 * try_connection)
+    # FIXME surveiller les retours de watch_entree et en cas de problème, relancer la connexion
     watch_entree = Thread(target=watch, args=(stream,))
     watch_entree.start()
 
