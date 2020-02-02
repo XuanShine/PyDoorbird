@@ -86,7 +86,7 @@ def watch_stream(q, process_watch):
     try:
         while True:
             result = q.get(block=True, timeout=30)
-            logging.debug(result)
+            # logging.debug(result)
             # print(result)
     except Empty:
         logging.warning(f"No signal from doorbell for more than 3 minutes. Stream reconnecting...")
