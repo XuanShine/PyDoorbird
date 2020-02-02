@@ -2,8 +2,11 @@
 """
 import os
 import pickle
-from threading import Thread
+import threading as thread
+import time
+from queue import Empty, SimpleQueue
 import logging
+from datetime import datetime
 
 import requests as req
 from requests import exceptions
@@ -31,11 +34,12 @@ def connection(user, password, number_try=1):
             raise ConnectionError("")
         import traceback
         logging.warning(f"ERROR {number_try} try connection au stream échouée; Reconnect in {time_wait}s. Vérifier la connection et l’ip doorbird: {ip_device}")
-        time.pause(time_wait)
-        connection(user, password, number_try+1)
+        time.sleep(time_wait)
+        return connection(user, password, number_try+1)
     except Exception:
         import traceback
         logging.error(f"Exception dans la main fonction connection de pydoorbird: {traceback.format_exc()}")
+        # return connection(user, password, number_try+1)
 
     if stream_doorbell.status_code == 401:
         logging.error("Connection to Doorbird impossible. Logins incorrect.")
@@ -59,20 +63,56 @@ def init():
 
     return stream
 
-def watch(stream):
+def watch_doorbell(stream, q=None):
+    t = thread.currentThread()
+    logging.warning(f"WARNING WARNING WARNING !!!! This thread may not be stop !! : «{t}»")
+    # FIXME : find a way to kill this thread as ".iter_lines" is bloquant
+    now = lambda : datetime.now().strftime("%H:%M:%S")
     for elt in stream.iter_lines():
+        if not getattr(t, "do_run", True):
+            print(f"thread «{t}» watch_doorbell stopped")
+            return
         if elt:
-            if "doorbell:H" in elt.decode("utf-8"):
-                logging.info("Doorbird entrée sonné.")
+            elt = elt.decode("utf-8")
+            if q:
+                q.put(f"{now()} - {elt}")
+            if "doorbell:H" in elt:
+                logging.info(f"{now()}: Doorbird entrée sonné.")
+                # print(f"{now()}: Doorbird entrée sonné.")
                 if rpi:
                     buzzer.buzz()
 
+def watch_stream(q, process_watch):
+    try:
+        while True:
+            result = q.get(block=True, timeout=30)
+            logging.debug(result)
+            # print(result)
+    except Empty:
+        logging.warning(f"No signal from doorbell for more than 3 minutes. Stream reconnecting...")
+        print(f"No signal from doorbell for more than 3 minutes. Stream reconnecting...")
+        # process_watch.close()
+        process_watch.do_run = False
+        q.put("reconnect")
+
+
+
 def main():
     stream = init()
-
-    # FIXME surveiller les retours de watch_entree et en cas de problème, relancer la connexion
-    watch_entree = Thread(target=watch, args=(stream,))
-    watch_entree.start()
+    queue = SimpleQueue()
+    watch1 = thread.Thread(target=watch_doorbell, args=(stream, queue))
+    watch2 = thread.Thread(target=watch_stream, args=(queue, watch1))
+    # print("Ready to staart")
+    watch1.start()
+    # print("watch1 started")
+    watch2.start()
+    # print("watch2 started")
+    # watch1.join()
+    watch2.join()
+    while not queue.empty():
+        if queue.get() == "reconnect":
+            main()
+            break
 
 if __name__ == "__main__":
     main()
