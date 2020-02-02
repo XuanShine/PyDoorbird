@@ -8,6 +8,7 @@ from queue import Empty, SimpleQueue
 import logging
 from datetime import datetime
 
+import urllib3
 import requests as req
 from requests import exceptions
 
@@ -36,6 +37,8 @@ def connection(user, password, number_try=1):
         logging.warning(f"ERROR {number_try} try connection au stream échouée; Reconnect in {time_wait}s. Vérifier la connection et l’ip doorbird: {ip_device}")
         time.sleep(time_wait)
         return connection(user, password, number_try+1)
+    except urllib3.exceptions.HeaderParsingError as e:
+        logging.warning(f"urllib3.exceptions.HeaderParsingError: {e}")
     except Exception:
         import traceback
         logging.error(f"Exception dans la main fonction connection de pydoorbird: {traceback.format_exc()}")

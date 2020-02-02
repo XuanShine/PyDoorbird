@@ -6,3 +6,4 @@
 *.pyc
 __pycache__/
 __pycache__/price.cpython-37.pyc
+doortest.py
