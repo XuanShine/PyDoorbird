@@ -19,7 +19,8 @@ except ImportError:
     print("No module RPi.GPIO")
     rpi = False
 
-ip_device = "10.0.0.74"
+ip_device = "10.0.0.3"
+# TODO automatic scan
 
 # TODO: faire attention au fichier de logs
 logging.basicConfig(filename="doorbird.log", level=logging.DEBUG, format="%(asctime)s -- %(name)s -- %(levelname)s -- %(message)s")
@@ -31,6 +32,7 @@ def connection(user, password, number_try=1):
         time_wait = 2 ** number_try
         if time_wait > 3600:
             # IMPROVE: check if there is a connection available, and scan the network
+            # TODO: warn user by SMS, call, email, etc..
             logging.error(f"ERROR {number_try} try connection au stream échouée; Arrêt de tentative de reconnexion. Vérifier la connection et l’ip doorbird: {ip_device}")
             raise ConnectionError("")
         import traceback
@@ -88,12 +90,12 @@ def watch_doorbell(stream, q=None):
 def watch_stream(q, process_watch):
     try:
         while True:
-            result = q.get(block=True, timeout=30)
+            result = q.get(block=True, timeout=60)
             # logging.debug(result)
             # print(result)
     except Empty:
-        logging.warning(f"No signal from doorbell for more than 3 minutes. Stream reconnecting...")
-        print(f"No signal from doorbell for more than 3 minutes. Stream reconnecting...")
+        logging.warning(f"No signal from doorbell for more than 1 minute. Stream reconnecting...")
+        print(f"No signal from doorbell for more than 1 minute. Stream reconnecting...")
         # process_watch.close()
         process_watch.do_run = False
         q.put("reconnect")
