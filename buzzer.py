@@ -1,7 +1,9 @@
-import RPi.GPIO as GPIO
+try:
+    import RPi.GPIO as GPIO
+except ImportError:
+    from RPiSim.GPIO import GPIO
 from time import sleep
 
-GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
 
 # gpio_buzzer = 7
