@@ -12,12 +12,8 @@ import urllib3
 import requests as req
 from requests import exceptions
 
-try:
-    rpi = True
-    import buzzer
-except ImportError:
-    print("No module RPi.GPIO")
-    rpi = False
+import buzzer
+
 
 ip_device = "10.0.0.3"
 # TODO automatic scan
@@ -84,8 +80,7 @@ def watch_doorbell(stream, q=None):
             if "doorbell:H" in elt:
                 logging.info(f"{now()}: Doorbird entrée sonné.")
                 # print(f"{now()}: Doorbird entrée sonné.")
-                if rpi:
-                    buzzer.buzz()
+                buzzer.buzz()
 
 def watch_stream(q, process_watch):
     try:
